@@ -1,8 +1,8 @@
 # Besvarelse - Refleksjon og Analyse
 
-**Student:** [Ditt navn]
+**Student:** [Tahmina Nargis Noori]
 
-**Studentnummer:** [Ditt studentnummer]
+**Studentnummer:** [tanoo6678]
 
 **Dato:** [Innleveringsdato]
 
@@ -13,30 +13,161 @@
 ### Oppgave 1.1: Entiteter og attributter
 
 **Identifiserte entiteter:**
+**Begrunnelse (kort):**
+Systemet består av sykkelstasjoner der sykler kan leies og leveres. Hver sykkel har unik ID og er låst med en lås ved en stasjon. Kunder registrerer seg og kan gjennomføre flere utleier. For hver utleie må starttidspunkt, eventuelt sluttidspunkt og leiebeløp lagres.
 
-[Skriv ditt svar her - list opp alle entitetene du har identifisert]
+
+- Station (sykkelstasjon)
+- Lock (lås)
+- Bike (sykkel)
+- Customer (kunde)
+- Rental (utleie)
+
+
 
 **Attributter for hver entitet:**
 
-[Skriv ditt svar her - list opp attributtene for hver entitet]
+**Station (sykkelstasjon)**
+- station_id
+- name
+- location
 
----
+**Lock (lås)**
+- lock_id
+- station_id
+
+**Bike (sykkel)**
+- bike_id
+- station_id (NULL når sykkelen er utleid)
+- lock_id (NULL når sykkelen er utleid)
+
+**Customer (kunde)**
+- customer_id
+- mobile_number
+- email
+- first_name
+- last_name
+
+**Rental (utleie)**
+- rental_id
+- customer_id
+- bike_id
+- start_time (utlevert)
+- end_time (innlevert, NULL til sykkelen leveres)
+- amount (leiebeløp)
+
+
 
 ### Oppgave 1.2: Datatyper og `CHECK`-constraints
 
 **Valgte datatyper og begrunnelser:**
 
-[Skriv ditt svar her - forklar hvilke datatyper du har valgt for hver attributt og hvorfor]
+Jeg har valgt datatyper i PostgreSQL som passer til innholdet og gir god dataintegritet:
+
+**Customer (kunde)**
+- customer_id: BIGSERIAL – surrogatnøkkel, enkel og effektiv.
+- mobile_number: VARCHAR(20) – telefonnummer kan ha landskode (+) og varierer i lengde.
+- email: VARCHAR(320) – tilstrekkelig lengde for e-postadresser.
+- first_name: VARCHAR(100) – navn er kort tekst.
+- last_name: VARCHAR(100) – navn er kort tekst.
+
+**Station (sykkelstasjon)**
+- station_id: BIGSERIAL – surrogatnøkkel.
+- name: VARCHAR(120) – kort navn.
+- location: TEXT – kan være adresse/beskrivelse (ukjent format i case).
+
+**Lock (lås)**
+- lock_id: BIGSERIAL – surrogatnøkkel.
+- station_id: BIGINT – peker til station.
+
+**Bike (sykkel)**
+- bike_id: BIGSERIAL – unik ID per sykkel.
+- station_id: BIGINT NULL – NULL når sykkelen er utleid (i følge hint).
+- lock_id: BIGINT NULL – NULL når sykkelen er utleid (i følge hint).
+
+**Rental (utleie)**
+- rental_id: BIGSERIAL – surrogatnøkkel.
+- customer_id: BIGINT – peker til kunde.
+- bike_id: BIGINT – peker til sykkel.
+- start_time: TIMESTAMPTZ – tidspunkt med tidssone.
+- end_time: TIMESTAMPTZ NULL – NULL til sykkelen leveres.
+- amount: NUMERIC(10,2) – pengebeløp må lagres nøyaktig.
 
 **`CHECK`-constraints:**
 
-[Skriv ditt svar her - list opp alle CHECK-constraints du har lagt til og forklar hvorfor de er nødvendige]
+Jeg har lagt til CHECK-constraints der det gir mening for å sikre gyldige verdier:
+
+**Customer**
+- mobile_number: bare tall og evt. + i starten, og rimelig lengde  
+  CHECK (mobile_number ~ '^\+?[0-9]{8,20}$')
+
+- email: enkel validering av e-postformat  
+  CHECK (email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$')
+
+- first_name / last_name: ikke tom streng  
+  CHECK (length(trim(first_name)) > 0)  
+  CHECK (length(trim(last_name)) > 0)
+
+**Station**
+- name: ikke tom streng  
+  CHECK (length(trim(name)) > 0)
+
+**Rental**
+- end_time må være NULL (pågående utleie) eller etter/lik start_time  
+  CHECK (end_time IS NULL OR end_time >= start_time)
+
+- amount kan ikke være negativt  
+  CHECK (amount >= 0)
+
+
 
 **ER-diagram:**
 
-[Legg inn mermaid-kode eller eventuelt en bildefil fra `mermaid.live` her]
+```mermaid
 
----
+erDiagram
+  STATION {
+    BIGINT station_id
+    VARCHAR name
+    TEXT location
+  }
+
+  LOCK {
+    BIGINT lock_id
+    BIGINT station_id
+  }
+
+  BIKE {
+    BIGINT bike_id
+    BIGINT station_id "NULL when rented"
+    BIGINT lock_id "NULL when rented"
+  }
+
+  CUSTOMER {
+    BIGINT customer_id
+    VARCHAR mobile_number
+    VARCHAR email
+    VARCHAR first_name
+    VARCHAR last_name
+  }
+
+  RENTAL {
+    BIGINT rental_id
+    BIGINT customer_id
+    BIGINT bike_id
+    TIMESTAMPTZ start_time
+    TIMESTAMPTZ end_time "NULL when ongoing"
+    NUMERIC amount
+  }
+
+  STATION ||--o{ LOCK : has
+  STATION ||--o{ BIKE : parks
+  LOCK ||--o| BIKE : secures
+  CUSTOMER ||--o{ RENTAL : makes
+  BIKE ||--o{ RENTAL : used_in
+```
+
+
 
 ### Oppgave 1.3: Primærnøkler
 
