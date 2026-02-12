@@ -244,15 +244,87 @@ erDiagram
 
 **Identifiserte forhold og kardinalitet:**
 
-[Skriv ditt svar her - list opp alle forholdene mellom entitetene og angi kardinalitet]
+- **Station → Lock:** 1-til-mange  
+  En stasjon kan ha mange låser, og hver lås tilhører nøyaktig en stasjon.
+
+- **Station → Bike:** 1-til-mange  
+  En stasjon kan ha mange sykler parkert. En sykkel er parkert ved maks en stasjon, men kan også være utleid (da er `station_id` NULL).
+
+- **Lock → Bike:** 1-til-0/1  
+  En lås kan være tilknyttet maks en sykkel om gangen. En sykkel som står parkert bruker én lås, men når sykkelen er utleid er `lock_id` NULL.
+
+- **Customer → Rental:** 1-til-mange  
+  En kunde kan gjennomføre mange utleier, og hver utleie tilhører én kunde.
+
+- **Bike → Rental:** 1-til-mange  
+  En sykkel kan bli leid mange ganger over tid, og hver utleie gjelder én sykkel.
+
+
 
 **Fremmednøkler:**
 
-[Skriv ditt svar her - list opp alle fremmednøklene og forklar hvordan de implementerer forholdene]
+**Fremmednøkler (FK) og hvordan de implementerer forholdene:**
+
+- **LOCK.station_id → STATION.station_id**  
+  Implementerer forholdet Station (1) → Lock (mange). Hver lås må høre til en stasjon.
+
+- **BIKE.station_id → STATION.station_id** (kan være NULL)  
+  Implementerer forholdet Station (1) → Bike (mange). Når sykkelen er utleid settes `station_id` til NULL.
+
+- **BIKE.lock_id → LOCK.lock_id** (kan være NULL)  
+  Implementerer forholdet Lock (1) → Bike (0/1). Når sykkelen er utleid settes `lock_id` til NULL.
+
+- **RENTAL.customer_id → CUSTOMER.customer_id**  
+  Implementerer forholdet Customer (1) → Rental (mange). Hver utleie tilhører en kunde.
+
+- **RENTAL.bike_id → BIKE.bike_id**  
+  Implementerer forholdet Bike (1) → Rental (mange). Hver utleie gjelder en bestemt sykkel.
 
 **Oppdatert ER-diagram:**
+ 
+ ```mermaid```
 
-[Legg inn mermaid-kode eller eventuelt en bildefil fra `mermaid.live` her]
+ erDiagram
+  STATION {
+    BIGINT station_id PK
+    VARCHAR name
+    TEXT location
+  }
+
+  LOCK {
+    BIGINT lock_id PK
+    BIGINT station_id FK
+  }
+
+  BIKE {
+    BIGINT bike_id PK
+    BIGINT station_id FK "NULL when rented"
+    BIGINT lock_id FK "NULL when rented"
+  }
+
+  CUSTOMER {
+    BIGINT customer_id PK
+    VARCHAR mobile_number
+    VARCHAR email
+    VARCHAR first_name
+    VARCHAR last_name
+  }
+
+  RENTAL {
+    BIGINT rental_id PK
+    BIGINT customer_id FK
+    BIGINT bike_id FK
+    TIMESTAMPTZ start_time
+    TIMESTAMPTZ end_time "NULL when ongoing"
+    NUMERIC amount
+  }
+
+  STATION ||--o{ LOCK : has
+  STATION ||--o{ BIKE : parks
+  LOCK ||--o| BIKE : secures
+  CUSTOMER ||--o{ RENTAL : makes
+  BIKE ||--o{ RENTAL : used_in
+
 
 ---
 
