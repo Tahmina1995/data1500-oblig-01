@@ -173,17 +173,72 @@ erDiagram
 
 **Valgte primærnøkler og begrunnelser:**
 
-[Skriv ditt svar her - forklar hvilke primærnøkler du har valgt for hver entitet og hvorfor]
+Jeg bruker en primærnøkkel per entitet for å identifisere rader unikt:
+
+- **Station:** station_id som primærnøkkel (surrogatnøkkel).
+- **Lock:** lock_id som primærnøkkel (surrogatnøkkel).
+- **Bike:** bike_id som primærnøkkel (unik ID per sykkel).
+- **Customer:** customer_id som primærnøkkel (surrogatnøkkel).
+- **Rental:** rental_id som primærnøkkel (surrogatnøkkel), fordi en kunde kan leie samme sykkel flere ganger og vi trenger en unik identifikator per utleie.
+
+
+
 
 **Naturlige vs. surrogatnøkler:**
 
-[Skriv ditt svar her - diskuter om du har brukt naturlige eller surrogatnøkler og hvorfor]
+Jeg har hovedsakelig valgt **surrogatnøkler** (BIGSERIAL) som primærnøkler fordi de er stabile, korte og effektive, og de endrer seg ikke selv om forretningsdata endres.
+
+Det finnes også **naturlige kandidatnøkler**, spesielt for Customer:
+- `email` og/eller `mobile_number` kan ofte være unike.
+Jeg bruker dem ikke som primærnøkkel fordi de kan endres (kunden kan bytte e-post/telefonnummer) og fordi format/validering kan variere. Derfor er det bedre å bruke `customer_id` som PK, og heller sette **UNIQUE** på `email` og/eller `mobile_number` senere.
+
+
 
 **Oppdatert ER-diagram:**
 
-[Legg inn mermaid-kode eller eventuelt en bildefil fra `mermaid.live` her]
+```mermaid
+erDiagram
+  STATION {
+    BIGINT station_id PK
+    VARCHAR name
+    TEXT location
+  }
 
----
+  LOCK {
+    BIGINT lock_id PK
+    BIGINT station_id
+  }
+
+  BIKE {
+    BIGINT bike_id PK
+    BIGINT station_id "NULL when rented"
+    BIGINT lock_id "NULL when rented"
+  }
+
+  CUSTOMER {
+    BIGINT customer_id PK
+    VARCHAR mobile_number
+    VARCHAR email
+    VARCHAR first_name
+    VARCHAR last_name
+  }
+
+  RENTAL {
+    BIGINT rental_id PK
+    BIGINT customer_id
+    BIGINT bike_id
+    TIMESTAMPTZ start_time
+    TIMESTAMPTZ end_time "NULL when ongoing"
+    NUMERIC amount
+  }
+
+  STATION ||--o{ LOCK : has
+  STATION ||--o{ BIKE : parks
+  LOCK ||--o| BIKE : secures
+  CUSTOMER ||--o{ RENTAL : makes
+  BIKE ||--o{ RENTAL : used_in
+  ```
+
 
 ### Oppgave 1.4: Forhold og fremmednøkler
 
