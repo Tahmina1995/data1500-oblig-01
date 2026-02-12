@@ -282,7 +282,7 @@ erDiagram
 
 **Oppdatert ER-diagram:**
  
- ```mermaid```
+ ```mermaid
 
  erDiagram
   STATION {
@@ -324,9 +324,8 @@ erDiagram
   LOCK ||--o| BIKE : secures
   CUSTOMER ||--o{ RENTAL : makes
   BIKE ||--o{ RENTAL : used_in
+  ```
 
-
----
 
 ### Oppgave 1.5: Normalisering
 
