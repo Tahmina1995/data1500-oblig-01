@@ -331,19 +331,26 @@ erDiagram
 
 **Vurdering av 1. normalform (1NF):**
 
-[Skriv ditt svar her - forklar om datamodellen din tilfredsstiller 1NF og hvorfor]
+Datamodellen tilfredsstiller 1NF fordi alle tabeller har atomiske attributter (en verdi per felt), og det finnes ingen repeterende grupper eller lister i en kolonne. For eksempel lagres e-post og mobilnummer som egne felt, og en utleie (Rental) er en rad per utleiehendelse.
+
+
+
 
 **Vurdering av 2. normalform (2NF):**
 
-[Skriv ditt svar her - forklar om datamodellen din tilfredsstiller 2NF og hvorfor]
+Datamodellen tilfredsstiller 2NF fordi alle tabeller bruker enkolonne-primærnøkler (surrogatnøkler), og dermed kan ingen ikke-nøkkelattributter være delvis avhengige av en sammensatt nøkkel. Alle ikke-nøkkelattributter i hver tabell avhenger av hele primærnøkkelen (f.eks. i RENTAL avhenger start_time, end_time og amount av rental_id).
+
+
+
 
 **Vurdering av 3. normalform (3NF):**
 
-[Skriv ditt svar her - forklar om datamodellen din tilfredsstiller 3NF og hvorfor]
+Datamodellen tilfredsstiller 3NF fordi alle ikke-nøkkelattributter avhenger direkte av primærnøkkelen, og det finnes ingen transitive avhengigheter (ikke-nøkkel → ikke-nøkkel) innenfor samme tabell. 
+For eksempel ligger kundeinformasjon (navn, e-post, mobil) kun i CUSTOMER-tabellen og ikke i RENTAL, og stasjonsinformasjon ligger kun i STATION og ikke i BIKE/LOCK. Dermed unngås redundans og oppdateringsanomalier.
+
 
 **Eventuelle justeringer:**
-
-[Skriv ditt svar her - hvis modellen ikke var på 3NF, forklar hvilke justeringer du har gjort]
+ Modellen var allerede på 3NF basert på valgte entiteter og attributter, så det var ikke nødvendig med større justeringer. Eventuelle unike forretningsregler (som unikhet på e-post/mobil) kan håndteres med UNIQUE-constraints, men påvirker ikke normalformene.
 
 ---
 
