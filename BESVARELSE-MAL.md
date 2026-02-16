@@ -360,15 +360,16 @@ For eksempel ligger kundeinformasjon (navn, e-post, mobil) kun i CUSTOMER-tabell
 
 **Plassering av SQL-skript:**
 
-[Bekreft at du har lagt SQL-skriptet i `init-scripts/01-init-database.sql`]
+SQL-skriptet er lagt i init-scripts/01-init-database.sql.
+
 
 **Antall testdata:**
 
-- Kunder: [antall]
-- Sykler: [antall]
-- Sykkelstasjoner: [antall]
-- Låser: [antall]
-- Utleier: [antall]
+- Kunder: [3]
+- Sykler: [5]
+- Sykkelstasjoner: [3]
+- Låser (bike_lock): [7]
+- Utleier: [2]
 
 ---
 
@@ -376,7 +377,18 @@ For eksempel ligger kundeinformasjon (navn, e-post, mobil) kun i CUSTOMER-tabell
 
 **Dokumentasjon av vellykket kjøring:**
 
-[Skriv ditt svar her - f.eks. skjermbilder eller output fra terminalen som viser at databasen ble opprettet uten feil]
+Jeg kjørte `docker compose up -d --build` uten feil, og databasen startet.
+
+Jeg verifiserte at containeren kjører med `docker ps`:
+
+[ [+] up 1/1
+✔ Container data1500-postgres Created
+CONTAINER ID   IMAGE               COMMAND                  CREATED          STATUS                    PORTS                     NAMES
+9f1e3f892c7d   postgres:15-alpine   "docker-entrypoint.s…"   32 seconds ago   Up 32 seconds (healthy)   0.0.0.0:5432->5432/tcp    data1500-postgres]
+
+
+
+
 
 **Spørring mot systemkatalogen:**
 
@@ -391,7 +403,12 @@ ORDER BY table_name;
 **Resultat:**
 
 ```
-[Skriv resultatet av spørringen her - list opp alle tabellene som ble opprettet]
+bike
+bike_lock
+customer
+rental
+station
+
 ```
 
 ---
