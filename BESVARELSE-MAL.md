@@ -420,19 +420,33 @@ station
 **SQL for å opprette rolle:**
 
 ```sql
-[Skriv din SQL-kode for å opprette rollen 'kunde' her]
+ CREATE ROLE kunde NOLOGIN;
 ```
 
 **SQL for å opprette bruker:**
 
 ```sql
-[Skriv din SQL-kode for å opprette brukeren 'kunde_1' her]
+CREATE USER kunde_1 WITH PASSWORD 'kunde123';
 ```
 
 **SQL for å tildele rettigheter:**
 
 ```sql
-[Skriv din SQL-kode for å tildele rettigheter til rollen her]
+-- gjør bruker til medlem av rollen
+GRANT kunde TO kunde_1;
+
+-- gi rollen tilgang til databasen
+GRANT CONNECT ON DATABASE oblig01 TO kunde;
+
+-- gi tilgang til schema
+GRANT USAGE ON SCHEMA public TO kunde;
+
+-- gi lesetilgang til alle tabeller (nåværende)
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO kunde;
+
+-- sørg for at nye tabeller også får SELECT automatisk
+ALTER DEFAULT PRIVILEGES FOR USER admin IN SCHEMA public
+GRANT SELECT ON TABLES TO kunde;
 ```
 
 ---

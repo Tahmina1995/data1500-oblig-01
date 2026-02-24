@@ -124,6 +124,8 @@ INSERT INTO rental (customer_id, bike_id, start_time, end_time, amount) VALUES
 
 
 
+
+
 -- Eventuelt: Opprett indekser for ytelse
 
 
