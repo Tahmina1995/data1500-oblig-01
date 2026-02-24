@@ -456,12 +456,35 @@ GRANT SELECT ON TABLES TO kunde;
 **SQL for VIEW:**
 
 ```sql
-[Skriv din SQL-kode for VIEW her]
+-- Mapper database-bruker til customer_id
+CREATE TABLE IF NOT EXISTS app_user (
+  db_username TEXT PRIMARY KEY,
+  customer_id BIGINT NOT NULL REFERENCES customer(customer_id)
+);
+
+-- Eksempel: koble kunde_1 til customer_id = 1
+INSERT INTO app_user (db_username, customer_id)
+VALUES ('kunde_1', 1)
+ON CONFLICT (db_username) DO NOTHING;
+
+-- View: viser bare utleier for innlogget bruker
+CREATE OR REPLACE VIEW v_mine_utleier AS
+SELECT r.rental_id,
+       r.bike_id,
+       r.start_time,
+       r.end_time,
+       r.amount
+FROM rental r
+JOIN app_user au ON au.customer_id = r.customer_id
+WHERE au.db_username = CURRENT_USER;
+
+-- Gi kunder tilgang til viewet (ikke direkte til tabellen)
+GRANT SELECT ON v_mine_utleier TO kunde;
 ```
 
 **Ulempe med VIEW vs. POLICIES:**
 
-[Skriv ditt svar her - diskuter minst én ulempe med å bruke VIEW for autorisasjon sammenlignet med POLICIES]
+ En ulempe med å bruke VIEW for autorisasjon er at det ikke gir like finmasket og robust tilgangskontroll som POLICIES (Row level security). Med VIEW må man ofte lage flere views og passe på at brukere ikke får dirikte tilgang til underliggende tabeller. POLICIES håndheves derimot dirikte i databasen på rad-nivå for alle spørringer mot tabllen, og er vanskeligere å omgå ved en feilkonfigurasjon. 
 
 ---
 
