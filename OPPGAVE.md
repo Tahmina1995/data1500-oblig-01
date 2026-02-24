@@ -6,6 +6,20 @@
 
 **Vurdering:** Bestått / Ikke bestått
 
+**Github-brukernavn til TA**
+
+**VIKTIG!** Inviter alle til deres private repository. Se [GUIDE-PRIVAT-REPO.md](GUIDE-PRIVAT-REPO.md) for hvordan lage en privat repository: 
+
+```
+Noid55
+Chonthichar
+Wasabiy
+Ragni93
+Larakhas
+Danviusy
+Ahson6184
+``` 
+
 ## Introduksjon
 
 I denne obligatoriske oppgaven skal du designe og implementere en relasjonsdatabase for et bysykkelsystem. Oppgaven vil ta deg gjennom hele prosessen fra datamodellering til implementering og bruk av databasen. Du vil anvende kunnskapen du har tilegnet deg fra kapitlene 1, 9, 12, 11, 6, 7, 8 og 3 i pensum og de fire første oppgavesettene.
@@ -18,7 +32,7 @@ KI er kun anbefalt for å søke for forklaring av begreper og meget spesifikke t
 
 Et nytt bysykkelsystem skal lanseres i byen din. Systemet består av et antall sykkelstasjoner, der kunder kan leie og levere sykler. Hver sykkel har en unik ID og er parkert på en (sykkel-)stasjon og låst fast med en lås. 
 
-Kundene kan registrere seg i systemet med mobilnummer, epost, fornavn og etternavn. Når en kunde skal leie en sykkel, står kunden ved en stasjon og låser opp sykkel. Da registreres utleietidspunktet (f. eks. ulevert). Når sykkelen leveres tilbake, registreres innleveringstidspunktet (f. eks. innlevert). 
+Kundene kan registrere seg i systemet med mobilnummer, epost, fornavn og etternavn. Når en kunde skal leie en sykkel, står kunden ved en stasjon og låser opp sykkel. Da registreres utleietidspunktet (f. eks. utlevert). Når sykkelen leveres tilbake, registreres innleveringstidspunktet (f. eks. innlevert). 
 
 Systemet må holde styr på hvilke sykler som er tilgjengelige på hvilke stasjoner (sted), og hvilke sykler som er utleid.
 
