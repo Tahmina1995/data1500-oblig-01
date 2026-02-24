@@ -500,15 +500,33 @@ GRANT SELECT ON v_mine_utleier TO kunde;
 
 **Totalt antall utleier per år:**
 
-[Skriv din utregning her]
+  Høysesong: 5 * 20000 = 100000
+  Mellomsesong: 4 * 5000 = 20000
+  Lavsesong: 3 * 500 = 1500
+  Totalt per år: 100000 + 20000 + 1500 = 121500 utleier 
+
+
 
 **Estimat for lagringskapasitet:**
 
-[Skriv din utregning her - vis hvordan du har beregnet lagringskapasiteten for hver tabell]
+Jeg estimerer lagringsbehov ved å ta (omtrent) antall bytes per rad * antall rader.
+
+**RENTAL (størst vekst):**
+Kolonner: 3*BIGINT (24B) + 2*TIMESTAMPTZ (16B) + NUMERIC(10,2) (~16B) ≈ 56B data.
+Med overhead per rad (header/alignment) antar jeg totalt ca. 100B per rad.
+
+Antall utleier første år: 121500
+=> 121500 * 100B ≈ 12 150 000B ≈ ca. 12 MB for RENTAL.
+
+**Andre tabeller (grovt):**
+STATION, BIKE_LOCK, BIKE og CUSTOMER forventes å ha langt færre rader enn RENTAL det første året og vil typisk være i størrelsesorden noen få MB til sammen.
+Med indekser og overhead antar jeg samlet ca. 10–20 MB ekstra.
+
+Totalt anslag første år (inkl. indekser/overhead): ca. 25–35 MB.
 
 **Totalt for første år:**
-
-[Skriv ditt estimat her]
+Totalt estimat for første år: ca. 25–35 MB (inkludert indekser og overhead).
+  
 
 ---
 
@@ -518,31 +536,45 @@ GRANT SELECT ON v_mine_utleier TO kunde;
 
 **Problem 1: Redundans**
 
-[Skriv ditt svar her - gi konkrete eksempler fra CSV-filen som viser redundans]
+CSV-filen har mye redundans fordi kundedata, stasjonsdata og sykkelmodell-data gjentas på mange rader. 
+For eksempel gjentas Ole Hansen tre ganger med samme mobilnr (+4791234567) og e-post (ole.hansen@example.com), og Kari Olsen gjentas tre ganger med samme mobilnr (+4792345678) og e-post (kari.olsen@example.com). 
+Stasjoner gjentas også: “Sentrum Stasjon” med adressen “Karl Johans gate 1 Oslo” forekommer i flere rader, og det samme gjelder f.eks. “Aker Brygge Stasjon / Stranden 1 Oslo”. 
+Sykkelmodell og innkjøpsdato gjentas også (f.eks. “City Bike Pro, 2023-03-15” og “Urban Cruiser, 2023-04-20”).
+Dette betyr at samme fakta lagres om igjen i stedet for én gang med referanser (kunde_id, stasjon_id, osv.).
 
 **Problem 2: Inkonsistens**
 
-[Skriv ditt svar her - forklar hvordan redundans kan føre til inkonsistens med eksempler]
+Redundans kan føre til inkonsistens fordi samme informasjon må oppdateres mange steder. 
+Hvis Ole Hansen endrer e-post, må alle rader der mobilnr +4791234567 / e-post ole.hansen@example.com forekommer oppdateres. Hvis én rad blir glemt, får vi inkonsistens (noen rader med gammel e-post, andre med ny). 
+Det samme gjelder stasjonsadresser: hvis “Karl Johans gate 1 Oslo” skrives litt ulikt i en rad (f.eks. “Karl Johans gt 1 Oslo”), vil databasen tro det er to ulike adresser for samme stasjon, og spørringer/rapporter kan bli feil.
 
 **Problem 3: Oppdateringsanomalier**
 
-[Skriv ditt svar her - diskuter slette-, innsettings- og oppdateringsanomalier]
+- **Oppdateringsanomalier:** Endring av kundedata (f.eks. mobilnr/epost) krever oppdatering av flere rader. Risiko for feil hvis ikke alle rader oppdateres.
+- **Innsettingsanomalier:** Man kan ikke enkelt legge inn en ny stasjon (navn + adresse) eller en ny kunde uten at det samtidig finnes en utleie. I en relasjonsdatabase kunne man lagt inn kunde/stasjon i egne tabeller først.
+- **Sletteanomalier:** Hvis man sletter siste utleie-rad som inneholder en bestemt stasjon eller kunde, mister man all informasjon om at stasjonen/kunden finnes (fordi all info bare ligger i utleie-radene).
 
 **Fordeler med en indeks:**
 
-[Skriv ditt svar her - forklar hvorfor en indeks ville gjort spørringen mer effektiv]
+En indeks gjør spørringer mer effektive fordi DBMS kan finne rader uten å lese gjennom hele tabellen/filen (full scan). 
+For eksempel, hvis man ofte søker etter utleier for en bestemt kunde (mobilnr/epost), kan en indeks på disse feltene gjøre at systemet raskt hopper direkte til relevante rader, i stedet for å lese alle utleier.
+Dette reduserer antall disk-I/O og gir lavere responstid.
 
 **Case 1: Indeks passer i RAM**
 
-[Skriv ditt svar her - forklar hvordan indeksen fungerer når den passer i minnet]
+Hvis indeksen får plass i RAM, kan DBMS holde hele indeksstrukturen i minnet. Oppslag blir da raskt fordi man traverserer indeksen i RAM og kun leser de aktuelle datasidene fra disk. 
+Dette gir svært god ytelse, spesielt for mange små oppslag (f.eks. “finn alle utleier for ole.hansen@example.com”).
 
 **Case 2: Indeks passer ikke i RAM**
 
-[Skriv ditt svar her - forklar hvordan flettesortering kan brukes]
+Hvis indeksen ikke får plass i RAM, må DBMS hente indeks-sider fra disk under oppslag, som gir flere diskaksesser og lavere ytelse. 
+Når man bygger en indeks over store datamengder, kan DBMS bruke flettesortering (external merge sort): først sorteres deler (“runs”) som får plass i minnet, skrives til disk, og deretter flettes disse delene i flere runder til én sortert struktur. 
+Dette gjør at man kan bygge/vedlikeholde indekser selv når data er større enn minnet.
 
 **Datastrukturer i DBMS:**
 
-[Skriv ditt svar her - diskuter B+-tre og hash-indekser]
+**B+-tre-indeks:** Nøklene lagres sortert. Dette er bra for både eksakte oppslag og intervallspørringer (range), f.eks. utleier mellom to tidspunkt (utleie_tidspunkt). Bladnodene er lenket slik at man kan lese intervaller effektivt.
+**Hash-indeks:** Veldig rask for eksakte oppslag (=), f.eks. på e-post eller mobilnr. Ulempen er at den ikke støtter intervallspørringer like godt, fordi hashing ikke bevarer sorteringsrekkefølge.
 
 ---
 

@@ -1,4 +1,4 @@
-fornavn,etternavn,obilnr,epost,sykkel_modell,sykkel_innkjopsdato,start_stasjon_navn,start_stasjon_adresse,slutt_stasjon_navn,slutt_stasjon_adresse,utleie_tidspunkt,innlevert_tidspunkt
+fornavn,etternavn,mobilnr,epost,sykkel_modell,sykkel_innkjopsdato,start_stasjon_navn,start_stasjon_adresse,slutt_stasjon_navn,slutt_stasjon_adresse,utleie_tidspunkt,innlevert_tidspunkt
 Ole,Hansen,+4791234567,ole.hansen@example.com,City Bike Pro,2023-03-15,Sentrum Stasjon,Karl Johans gate 1 Oslo,Universitetet Stasjon,Blindern Oslo,2023-06-01 08:30:00,2023-06-01 09:15:00
 Ole,Hansen,+4791234567,ole.hansen@example.com,Urban Cruiser,2023-04-20,Universitetet Stasjon,Blindern Oslo,Grünerløkka Stasjon,Thorvald Meyers gate 10 Oslo,2023-06-05 14:20:00,2023-06-05 15:30:00
 Kari,Olsen,+4792345678,kari.olsen@example.com,EcoBike 3000,2023-02-10,Grünerløkka Stasjon,Thorvald Meyers gate 10 Oslo,Aker Brygge Stasjon,Stranden 1 Oslo,2023-06-10 10:00:00,2023-06-10 11:45:00
