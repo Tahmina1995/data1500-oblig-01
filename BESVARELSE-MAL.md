@@ -2,9 +2,9 @@
 
 **Student:** [Tahmina Nargis Noori]
 
-**Studentnummer:** [tanoo6678]
+**Studentnummer:** tanoo6678 / 396127
 
-**Dato:** [Innleveringsdato]
+**Dato:** 25.02.2026
 
 ---
 
@@ -651,18 +651,20 @@ Jeg har lært at databasedesign handler om å modellere data slik at man unngår
 
 **Plassering av SQL-spørringer:**
 
-[Bekreft at du har lagt SQL-spørringene i `test-scripts/queries.sql`]
+SQL-spørringene er lagt i `test-scripts/queries.sql`.
 
 
 **Eventuelle feil og rettelser:**
 
-[Skriv ditt svar her - hvis noen tester feilet, forklar hva som var feil og hvordan du rettet det]
+Spørringene i `test-scripts/queries.sql` ble kjørt med `docker compose exec ...` og kjørte uten feil.
 
 ---
 
 ## Del 6: Bonusoppgaver (Valgfri)
 
 ### Oppgave 6.1: Trigger for lagerbeholdning
+
+## Bonusoppgaven er ikke løst.
 
 **SQL for trigger:**
 
