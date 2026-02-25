@@ -582,17 +582,17 @@ Dette gjør at man kan bygge/vedlikeholde indekser selv når data er større enn
 
 **Foreslått datastruktur:**
 
-[Skriv ditt svar her - f.eks. heap-fil, LSM-tree, eller annen egnet datastruktur]
+LSM-tree (Log-Structured Merge-Tree)
 
 **Begrunnelse:**
 
 **Skrive-operasjoner:**
 
-[Skriv ditt svar her - forklar hvorfor datastrukturen er egnet for mange skrive-operasjoner]
+LSM-tree er godt egnet for mange skrive-operasjoner fordi nye poster først skrives sekvensielt til en logg og/eller en minnestruktur (memtable). Når memtable blir full, flushes data som en sortert fil (SSTable) til disk. Sekvensielle skriver er raske på disk, og strukturen unngår mange tilfeldige (random) disk-skriver som er dyre.
 
 **Lese-operasjoner:**
 
-[Skriv ditt svar her - forklar hvordan datastrukturen håndterer sjeldne lese-operasjoner]
+Ved sjeldne lese-operasjoner kan LSM-tree likevel fungere bra ved hjelp av indekser i SSTables og en Bloom filter som raskt kan avvise filer som ikke inneholder nøkkelen. Hvis man må lese, kan systemet søke i memtable først og deretter i et begrenset antall SSTables. Siden lesing skjer sjelden i dette caset (logging), er det akseptabelt at lesing kan være litt dyrere enn i en struktur optimalisert for lesing.
 
 ---
 
@@ -600,23 +600,28 @@ Dette gjør at man kan bygge/vedlikeholde indekser selv når data er større enn
 
 **Hvor bør validering gjøres:**
 
-[Skriv ditt svar her - argumenter for validering i ett eller flere lag]
+Validering bør gjøres i flere lag: i nettleseren for rask tilbakemelding til brukeren, i applikasjonslaget for forretningsregler og sikkerhet, og i databasen som siste “sikkerhetsnett” for dataintegritet (constraints). Hvis man bare validerer ett sted kan validering omgås eller feile, og dårlige data kan likevel ende i databasen.
 
 **Validering i nettleseren:**
 
-[Skriv ditt svar her - diskuter fordeler og ulemper]
+**Fordeler:** Gir rask tilbakemelding (bedre brukeropplevelse), kan redusere unødvendige kall til serveren, og fanger enkle feil tidlig (f.eks. tomme felter, format på e-post).
+**Ulemper:** Kan omgås (bruker kan slå av JavaScript eller sende request direkte), derfor kan man ikke stole på dette laget alene. Regler i nettleseren kan også bli utdaterte hvis de ikke holdes i sync med server.
 
 **Validering i applikasjonslaget:**
 
-[Skriv ditt svar her - diskuter fordeler og ulemper]
+**Fordeler:** Dette laget kan håndheve forretningsregler og sikkerhet (autorisering), og validering kan være mer fleksibel (kryssfelt-regler, sjekk mot eksisterende data, rate limits). Det er også enklere å logge og gi gode feilmeldinger til klienten.
+**Ulemper:** Hvis flere tjenester/klienter skriver til samme database, må man sikre at alle implementerer reglene riktig. Validering her alene gir ikke en absolutt garanti, fordi feil i applikasjonskode eller bypass kan slippe gjennom uten database-constraints.
 
 **Validering i databasen:**
 
-[Skriv ditt svar her - diskuter fordeler og ulemper]
+**Fordeler:** Databasen er siste linje av forsvar og sikrer dataintegritet uansett hvilken klient som skriver (constraints som NOT NULL, CHECK, FOREIGN KEY, UNIQUE). Dette hindrer at ugyldige data lagres selv om applikasjonen har feil eller validering omgås.
+**Ulemper:** Databasen bør ikke inneholde for mye kompleks forretningslogikk (kan bli vanskeligere å vedlikeholde og teste). Feilmeldinger kan også være mindre “brukervennlige”, og avansert validering i databasen kan gi ekstra kompleksitet/ytelses-kostnad.
+
+
 
 **Konklusjon:**
 
-[Skriv ditt svar her - oppsummer hvor validering bør gjøres og hvorfor]
+Validering bør gjøres i flere lag. Nettleseren brukes for rask og brukervennlig feedback, applikasjonslaget håndhever forretningsregler og sikkerhet, og databasen sikrer integritet med constraints slik at ugyldige data ikke kan lagres. Sammen gir dette både god brukeropplevelse og robust sikkerhet/datakvalitet.
 
 ---
 
@@ -624,21 +629,21 @@ Dette gjør at man kan bygge/vedlikeholde indekser selv når data er større enn
 
 **Hva har du lært så langt i emnet:**
 
-[Skriv din refleksjon her - diskuter sentrale konsepter du har lært]
+Jeg har lært grunnleggende prinsipper i databasedesign og relasjonsmodellen, som entiteter/attributter, primær- og fremmednøkler, kardinalitet og normalisering (1NF–3NF). Jeg har også fått bedre forståelse for hvordan constraints (NOT NULL, CHECK, UNIQUE, FK) sikrer datakvalitet, og hvordan SQL brukes til å opprette tabeller, sette rettigheter og skrive spørringer. I tillegg har jeg lært mer om ytelse, spesielt hvorfor indekser er viktige og hvordan datastrukturer som B+-trær og LSM-trær påvirker lese- og skriveytelse.
 
 **Hvordan har denne oppgaven bidratt til å oppnå læringsmålene:**
 
-[Skriv din refleksjon her - koble oppgaven til læringsmålene i emnet]
+Denne oppgaven har bidratt til læringsmålene i emnet ved at jeg måtte jobbe gjennom hele kjeden fra modellering til implementering og bruk. Jeg har brukt teori om relasjonsmodellen, ER-modellering, nøkler og normalisering for å designe et godt skjema. Videre har jeg implementert databasen i PostgreSQL med riktige datatyper og constraints for å sikre dataintegritet. Jeg har også øvd på SQL i praksis (DDL/DML og spørringer), samt forstått hvordan indekser og datastrukturer påvirker ytelse. Til slutt har oppgaven gitt erfaring med tilgangskontroll (roller, GRANT og VIEW) og hvordan man kan begrense tilgang til data i et reelt system. Dette samsvarer med læringsmålene om å kunne designe, implementere og analysere relasjonsdatabaser med fokus på integritet, sikkerhet og ytelse.
 
-Se oversikt over læringsmålene i en PDF-fil i Canvas https://oslomet.instructure.com/courses/33293/files/folder/Plan%20v%C3%A5ren%202026?preview=4370886
+
 
 **Hva var mest utfordrende:**
 
-[Skriv din refleksjon her - diskuter hvilke deler av oppgaven som var mest krevende]
+Det mest utfordrende var å oversette case-beskrivelsen til en korrekt og enkel datamodell uten å ta med unødvendige entiteter, og samtidig velge riktige nøkler, relasjoner og constraints. Det var også krevende å få alt til å fungere i praksis med Docker/PostgreSQL (init-script, testdata og verifisering). I tillegg var tilgangskontroll (roller/GRANT og VIEW) litt utfordrende fordi det krevde at jeg forstod både SQL og hvordan databasen faktisk håndhever rettigheter.
 
 **Hva har du lært om databasedesign:**
 
-[Skriv din refleksjon her - reflekter over prosessen med å designe en database fra bunnen av]
+Jeg har lært at databasedesign handler om å modellere data slik at man unngår redundans og inkonsistens, og at normalisering (1NF–3NF) hjelper med dette. Jeg har også lært hvor viktig det er å velge gode primær- og fremmednøkler, slik at relasjoner mellom tabeller blir korrekte og enkle å bruke. I tillegg har jeg sett at constraints (NOT NULL, CHECK, UNIQUE, FK) fungerer som et “sikkerhetsnett” som beskytter datakvaliteten. Til slutt har jeg lært at man må tenke på sikkerhet og ytelse tidlig, f.eks. med tilgangskontroll (roller/GRANT/VIEW) og indekser.
 
 ---
 
